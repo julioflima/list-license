@@ -3,6 +3,8 @@ const cheerio = require('cheerio');
 
 const packageJson = require('./_package.json');
 
+let errorCount = 0
+
 async function getLicenseInfo(packageName, version) {
     try {
         const formattedVersion = version.replace(/[^0-9.]/g, '');
@@ -14,7 +16,14 @@ async function getLicenseInfo(packageName, version) {
         return licenseText;
     } catch (error) {
         console.error('Error fetching license information:', error);
-        await (new Promise(resolve => setTimeout(resolve, (Math.floor(Math.random() * 10) + 1)*1000)));
+        errorCount = errorCount + 1
+        await (new Promise(resolve => setTimeout(resolve, (Math.floor(Math.random() * 10) + 1) * 1000)));
+        if (errorCount < 3) {
+            const result = await getLicenseInfo(packageName, version)
+            errorCount = 0
+            return result
+        }
+
         return 'Not Found License';
     }
 }
